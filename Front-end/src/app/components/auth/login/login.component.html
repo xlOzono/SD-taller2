@@ -1,0 +1,48 @@
+<div
+  class="container d-flex justify-content-center align-items-center"
+  style="margin-top: 15vh"
+>
+  <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-6">
+    <div class="text-center my-5">
+      <h3 class="fw-semibold">Inicia sesión o crea una cuenta</h3>
+    </div>
+    <form>
+      <div class="mb-3">
+        <input
+          type="email"
+          class="form-control rounded-pill p-3"
+          id="inputEmail"
+          placeholder="Correo electrónico"
+        />
+      </div>
+      <div class="mb-3">
+        <input
+          type="password"
+          class="form-control rounded-pill p-3 mb-4"
+          id="inputPassword"
+          placeholder="Contraseña"
+        />
+      </div>
+      <div class="d-grid">
+        <button
+          type="submit"
+          class="btn btn-lg btn-lockin-primary rounded-pill py-3"
+        >
+          Iniciar Sesión
+        </button>
+      </div>
+    </form>
+    <div class="my-3 text-center">
+      <h5>o</h5>
+    </div>
+    <div class="d-grid mb-3">
+      <button
+        type="button"
+        class="btn btn-lg btn-lockin-secondary rounded-pill py-3"
+        [routerLink]="['/register']"
+      >
+        Crear cuenta
+      </button>
+    </div>
+  </div>
+</div>

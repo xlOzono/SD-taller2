@@ -1,0 +1,35 @@
+html,
+body {
+  background-color: #e1e1e1 !important;
+}
+
+.btn-lockin-primary {
+  background-color: #f8bd50 !important;
+}
+
+.btn-lockin-secondary {
+  background-color: #3a5087 !important;
+  color: white !important;
+}
+
+.bg-lockin-secondary {
+  background-color: #3a5087 !important;
+}
+
+.bg-lockin-tertiary {
+  background-color: #758dca !important;
+}
+
+.nav-link.active {
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+.nav-link {
+  color: black !important;
+}
+
+.nav-link:hover {
+  border-color: rgba(0, 0, 0, 0.25) !important;
+}
