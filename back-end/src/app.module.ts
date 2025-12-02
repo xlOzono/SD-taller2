@@ -1,24 +1,34 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsuarioModule } from './usuario/usuario.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT ?? '3306', 10),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
-      entities: [User],
-      synchronize: false, // o true mientras pruebas el modelo
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
-    UsersModule,
-    UsuarioModule,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get('DB_HOST'),
+        port: parseInt(configService.get<string>('DB_PORT')!),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_NAME'),
+        entities: [__dirname + '/**/*.entity.{ts,js}'],
+        synchronize: true,
+        autoLoadEntities: true,
+      }),
+      inject: [ConfigService],
+    }),
+    AuthModule, 
+    UsersModule
   ],
 })
 export class AppModule {}

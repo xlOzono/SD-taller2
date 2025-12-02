@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { RegisterRequest } from 'src/app/models/auth';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -7,7 +9,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-  formData = {
+  formData: RegisterRequest = {
     rut: '',
     name: '',
     surname: '',
@@ -18,16 +20,29 @@ export class RegisterComponent {
   mensajeError: string | null = null;
 
   constructor(
+    private authService: AuthService,
     private router: Router
   ) {}
 
-  ngAfterViewInit() {
-    const form = document.querySelector('form');
-    if (form) {
-      form.addEventListener('submit', this.onSubmit.bind(this));
-    }
-  }
-
   onSubmit() {
+    const { rut, name, surname, email, password } = this.formData;
+
+    if (!rut || !name || !surname || !email || !password) {
+      alert('Por favor completa todos los campos');
+      return;
+    }
+
+    this.authService.register(this.formData).subscribe({
+      next: (res) => {
+        console.log('Registro exitoso', res);
+        alert('Usuario registrado correctamente');
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        console.error('Error al registrar', err);
+        const mensaje = err.error?.message || 'Error desconocido';
+        alert('Error: ' + mensaje);
+      }
+    });
   }
 }

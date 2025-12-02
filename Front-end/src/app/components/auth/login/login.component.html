@@ -6,22 +6,47 @@
     <div class="text-center my-5">
       <h3 class="fw-semibold">Inicia sesión o crea una cuenta</h3>
     </div>
-    <form>
+    <form #form="ngForm" (ngSubmit)="onSubmit()" novalidate>
+      <div *ngIf="errorMessage" class="alert alert-danger text-center" role="alert">
+        {{ errorMessage }}
+      </div>
       <div class="mb-3">
         <input
           type="email"
           class="form-control rounded-pill p-3"
           id="inputEmail"
+          name="email"
           placeholder="Correo electrónico"
+          [(ngModel)]="formData.email"
+          required
+          #email="ngModel"
         />
+        <div
+          *ngIf="email.invalid && email.touched"
+          class="text-danger ms-2 mt-1"
+        >
+          El correo es obligatorio.
+        </div>
       </div>
+
+      <!-- Contraseña -->
       <div class="mb-3">
         <input
           type="password"
-          class="form-control rounded-pill p-3 mb-4"
+          class="form-control rounded-pill p-3"
           id="inputPassword"
+          name="password"
           placeholder="Contraseña"
+          [(ngModel)]="formData.password"
+          required
+          #password="ngModel"
         />
+        <div
+          *ngIf="password.invalid && password.touched"
+          class="text-danger ms-2 mt-1"
+        >
+          La contraseña es obligatoria.
+        </div>
       </div>
       <div class="d-grid">
         <button
