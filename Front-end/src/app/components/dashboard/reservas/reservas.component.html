@@ -31,8 +31,13 @@
                 <button
                   *ngIf="reserva.estado === 'activa'"
                   class="btn btn-danger btn-sm"
+                  (click)="openConfirmLiberar(reserva)"
+                  [disabled]="loadingLiberar[reserva.id_rsv]"
                 >
-                  Liberar
+                  <span *ngIf="!loadingLiberar[reserva.id_rsv]">Liberar</span>
+                  <span *ngIf="loadingLiberar[reserva.id_rsv]"
+                    >Liberando...</span
+                  >
                 </button>
               </td>
             </tr>
@@ -60,6 +65,41 @@
               </p>
             </div>
           </div>
+
+          <!-- Modal de confirmación para liberar reserva -->
+          <ng-template #confirmLiberar let-modal>
+            <div class="modal-header">
+              <h5 class="modal-title">Confirmar liberación</h5>
+              <button
+                type="button"
+                class="btn-close"
+                aria-label="Close"
+                (click)="cancelarLiberar(modal)"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <p>
+                ¿Estás seguro que deseas liberar este casillero? La reserva será
+                cancelada y el casillero quedará disponible.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="cancelarLiberar(modal)"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                (click)="confirmarLiberar(modal)"
+              >
+                Confirmar liberación
+              </button>
+            </div>
+          </ng-template>
         </div>
       </div>
     </div>

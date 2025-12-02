@@ -24,12 +24,21 @@ export class UsersService {
     return this.usersRepository.findOneBy({ rut });
   }
 
+  findOneById(id: number) {
+    return this.usersRepository.findOneBy({ id });
+  }
+
+  async getUserIdByEmail(email: string) {
+    const user = await this.usersRepository.findOneBy({ email });
+    return user ? user.id : null;
+  }
+
   findAll() {
     return `This action returns all users`;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} user`;
+    return this.usersRepository.findOneBy({ id });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

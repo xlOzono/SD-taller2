@@ -51,4 +51,47 @@ export class ReservasService {
   getReservasUser(userID: number): Observable<Reserva[]> {
     return of(this.reservas.filter((reserva) => reserva.id_usr === userID));
   }
+
+  // Crear una nueva reserva: calcula fechas, genera PIN único y agrega a la lista
+  crearReserva(casilleroId: number, usuarioId: number): Observable<Reserva> {
+    // fecha de inicio = ahora
+    const fechaInicio = new Date();
+    // fecha de vencimiento = inicio + 14 días
+    const fechaVencimiento = new Date(fechaInicio.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+    // generar id_rsv
+    const maxId = this.reservas.reduce((max, r) => (r.id_rsv > max ? r.id_rsv : max), 0);
+    const newId = maxId + 1;
+
+    // generar PIN único entre todas las reservas (4 dígitos)
+    let pin: number;
+    const existingPins = new Set(this.reservas.map((r) => r.pin));
+    do {
+      pin = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
+    } while (existingPins.has(pin));
+
+    const nuevaReserva: Reserva = {
+      id_rsv: newId,
+      id_cld: casilleroId,
+      id_usr: usuarioId,
+      fecha_inicio: fechaInicio,
+      fecha_vencimiento: fechaVencimiento,
+      estado: 'activa',
+      pin: pin,
+    };
+
+    //Aca deberia crear la reserva en el backend
+    this.reservas.push(nuevaReserva);
+    return of(nuevaReserva);
+  }
+
+  // Cambia el estado de una reserva a 'cancelada' (liberar)
+  liberarReserva(id_rsv: number): Observable<Reserva | null> {
+    const reserva = this.reservas.find((r) => r.id_rsv === id_rsv);
+    if (!reserva) {
+      return of(null);
+    }
+    reserva.estado = 'cancelada';
+    return of(reserva);
+  }
 }

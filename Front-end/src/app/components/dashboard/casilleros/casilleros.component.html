@@ -90,3 +90,27 @@
     </button>
   </div>
 </ng-template>
+<!-- Modal de Éxito: muestra PIN y duración -->
+<ng-template #successModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Reserva creada</h5>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss()"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <p>Tu casillero está disponible por dos semanas.</p>
+    <p>
+      Tu PIN de acceso es: <strong>{{ reservaPin }}</strong>
+    </p>
+    <p>Guarda este PIN; lo necesitarás para abrir el casillero.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="modal.close()">
+      Aceptar
+    </button>
+  </div>
+</ng-template>

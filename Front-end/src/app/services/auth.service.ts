@@ -23,8 +23,49 @@ export class AuthService {
   // Método para el login
   login(email: string, password: string): Observable<LoginResponse> {
     const body: LoginRequest = { email, password };
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, body);
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, body).pipe(
+      (response) => {
+        // Guardar los datos del usuario después del login exitoso
+        return response;
+      }
+    );
   }
+
+  // Guardar los datos del usuario en localStorage
+  saveUserData(loginResponse: LoginResponse): void {
+    localStorage.setItem('token', loginResponse.token);
+    localStorage.setItem('userId', loginResponse.id.toString());
+    localStorage.setItem('userEmail', loginResponse.email);
+  }
+
+  // Obtener el ID del usuario actual
+  getCurrentUserId(): number | null {
+    const userId = localStorage.getItem('userId');
+    return userId ? parseInt(userId, 10) : null;
+  }
+
+  // Obtener el email del usuario actual
+  getCurrentUserEmail(): string | null {
+    return localStorage.getItem('userEmail');
+  }
+
+  // Obtener el token del usuario actual
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  // Limpiar datos del usuario (logout)
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userEmail');
+  }
+
+  // Verificar si el usuario está autenticado
+  isAuthenticated(): boolean {
+    return localStorage.getItem('token') !== null;
+  }
+
   // Método para el registro
   register(user: RegisterRequest): Observable<RegisterResponse> {
     return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, user);
