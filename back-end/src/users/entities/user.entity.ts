@@ -5,11 +5,14 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({ unique: true })
+    rut: string;
+
     @Column()
     name: string;
 
     @Column()
-    lastName: string;
+    surname: string;
 
     @Column()
     email: string;

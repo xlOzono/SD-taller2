@@ -11,16 +11,21 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register({ name, lastName, email, password }: RegisterDto) {
-    const user = await this.usersService.findOneByEmail(email);
-
-    if (user) {
+  async register({ rut, name, surname, email, password }: RegisterDto) {
+    const userByEmail = await this.usersService.findOneByEmail(email);
+    if (userByEmail) {
       throw new BadRequestException('El correo ya está registrado');
     }
 
+    const userByRut = await this.usersService.findOneByRut(rut);
+    if (userByRut) {
+      throw new BadRequestException('El RUT ya está registrado');
+    }
+
     await this.usersService.create({
+      rut,
       name,
-      lastName,
+      surname,
       email,
       password: await bcrypt.hash(password, 10),
     });
