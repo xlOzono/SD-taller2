@@ -10,6 +10,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ReservasComponent } from './components/dashboard/reservas/reservas.component';
 import { DashboardComponent } from './components/dashboard/dashboard/dashboard.component';
 import { CasillerosComponent } from './components/dashboard/casilleros/casilleros.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,7 @@ import { CasillerosComponent } from './components/dashboard/casilleros/casillero
     BrowserModule,
     AppRoutingModule,
     FormsModule, 
-    ReactiveFormsModule
+    ReactiveFormsModule, NgbModule
   ],
   providers: [],
   bootstrap: [AppComponent]
