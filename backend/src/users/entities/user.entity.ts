@@ -1,9 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Reserva } from "src/reservas/entities/reserva.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
-    id: number;
+    id_usr: number;
 
     @Column({ unique: true })
     rut: string;
@@ -25,4 +26,7 @@ export class User {
 
     @Column({ default: false })
     fingerprint: boolean;
+
+    @OneToMany(() => Reserva, (reserva) => reserva.usuario)
+      reservas: Reserva[];
 }

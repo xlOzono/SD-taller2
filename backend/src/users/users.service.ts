@@ -24,28 +24,28 @@ export class UsersService {
     return this.usersRepository.findOneBy({ rut });
   }
 
-  findOneById(id: number) {
-    return this.usersRepository.findOneBy({ id });
+  findOneById(id_usr: number) {
+    return this.usersRepository.findOneBy({ id_usr });
   }
 
   async getUserIdByEmail(email: string) {
     const user = await this.usersRepository.findOneBy({ email });
-    return user ? user.id : null;
+    return user ? user.id_usr : null;
   }
 
   findAll() {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return this.usersRepository.findOneBy({ id });
+  findOne(id_usr: number) {
+    return this.usersRepository.findOneBy({ id_usr });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  update(id_usr: number, updateUserDto: UpdateUserDto) {
+    return `This action updates a #${id_usr} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id_usr: number) {
+    return `This action removes a #${id_usr} user`;
   }
 }

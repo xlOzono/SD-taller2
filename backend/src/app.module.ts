@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CasillerosModule } from './casilleros/casilleros.module';
 import { ReservasModule } from './reservas/reservas.module';
 import { HttpModule } from '@nestjs/axios';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 
 
@@ -22,8 +24,10 @@ import { HttpModule } from '@nestjs/axios';
       synchronize: true, 
     }),
 
-    CasillerosModule,           // Microservicio principal de Casilleros
-    ReservasModule,             // Microservicio principal de Reservas
+    CasillerosModule,           
+    ReservasModule,
+    AuthModule, 
+    UsersModule             
   ],
 })
 export class AppModule implements NestModule {

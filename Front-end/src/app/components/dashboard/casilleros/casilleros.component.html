@@ -23,7 +23,7 @@
                 {{ casillero.estado | titlecase }}
               </h5>
               <button
-                *ngIf="casillero.estado === 'libre'"
+                *ngIf="casillero.estado === 'disponible'"
                 class="btn btn-primary rounded-pill"
                 (click)="reservar(casillero, content)"
               >

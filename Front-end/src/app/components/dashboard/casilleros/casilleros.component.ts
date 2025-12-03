@@ -34,7 +34,7 @@ export class CasillerosComponent implements OnInit {
 
   getCardClass(estado: string): string {
     switch (estado) {
-      case 'libre':
+      case 'disponible':
         return 'text-bg-success';
       case 'ocupado':
         return 'text-bg-secondary';
@@ -68,7 +68,12 @@ export class CasillerosComponent implements OnInit {
       .crearReserva(this.casilleroSeleccionado.id_cld, this.usuarioId)
       .subscribe((nuevaReserva) => {
         // Guardar el PIN para mostrar en el modal de éxito
-        this.reservaPin = nuevaReserva.pin;
+        if (nuevaReserva && nuevaReserva.pin !== undefined && nuevaReserva.pin !== null) {
+          this.reservaPin = nuevaReserva.pin;
+        } else {
+          this.reservaPin = null;
+          console.error('La reserva creada es nula o no contiene un PIN');
+        }
 
         // Abrir modal de éxito
         this.modalService.open(this.successModal, { centered: true });

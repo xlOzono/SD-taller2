@@ -1,97 +1,87 @@
 import { Injectable } from '@angular/core';
 import { Reserva } from '../models/reserva';
 import { Observable, of } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { catchError, map } from 'rxjs/operators';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ReservasService {
-  private reservas: Reserva[] = [
-    {
-      id_rsv: 1,
-      id_cld: 1,
-      id_usr: 101,
-      fecha_inicio: new Date('2025-12-01'),
-      fecha_vencimiento: new Date('2025-12-25'),
-      estado: 'activa',
-      pin: 1234,
-    },
-    {
-      id_rsv: 2,
-      id_cld: 2,
-      id_usr: 101,
-      fecha_inicio: new Date('2024-01-12'),
-      fecha_vencimiento: new Date('2024-01-20'),
-      estado: 'finalizada',
-      pin: 3659,
-    },
-    {
-      id_rsv: 3,
-      id_cld: 1,
-      id_usr: 101,
-      fecha_inicio: new Date('2025-01-12'),
-      fecha_vencimiento: new Date('2025-01-20'),
-      estado: 'finalizada',
-      pin: 3659,
-    },
-    {
-      id_rsv: 2,
-      id_cld: 4,
-      id_usr: 102,
-      fecha_inicio: new Date('2024-02-01'),
-      fecha_vencimiento: new Date('2024-02-15'),
-      estado: 'activa',
-      pin: 5678,
-    },
-  ];
+  private apiUrl = 'http://localhost:3000/reservas';
 
-  constructor() {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // Obtener todos los casilleros
+  // Obtener reservas de un usuario desde el backend
   getReservasUser(userID: number): Observable<Reserva[]> {
-    return of(this.reservas.filter((reserva) => reserva.id_usr === userID));
+    const headers = this.buildHeaders();
+    return this.http
+      .get<any>(`${this.apiUrl}/usuario/${userID}`, { headers })
+      .pipe(
+        map((resList) => (
+          Array.isArray(resList) ? resList.map(this.normalizeReserva) : []
+        )),
+        catchError((err) => {
+          console.error('Error al obtener reservas del usuario:', err);
+          return of([] as Reserva[]);
+        })
+      );
   }
 
-  // Crear una nueva reserva: calcula fechas, genera PIN único y agrega a la lista
-  crearReserva(casilleroId: number, usuarioId: number): Observable<Reserva> {
-    // fecha de inicio = ahora
-    const fechaInicio = new Date();
-    // fecha de vencimiento = inicio + 14 días
-    const fechaVencimiento = new Date(fechaInicio.getTime() + 14 * 24 * 60 * 60 * 1000);
-
-    // generar id_rsv
-    const maxId = this.reservas.reduce((max, r) => (r.id_rsv > max ? r.id_rsv : max), 0);
-    const newId = maxId + 1;
-
-    // generar PIN único entre todas las reservas (4 dígitos)
-    let pin: number;
-    const existingPins = new Set(this.reservas.map((r) => r.pin));
-    do {
-      pin = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
-    } while (existingPins.has(pin));
-
-    const nuevaReserva: Reserva = {
-      id_rsv: newId,
-      id_cld: casilleroId,
+  // Crear reserva via API
+  crearReserva(casilleroId: number, usuarioId: number): Observable<Reserva | null> {
+    const body: any = {
       id_usr: usuarioId,
-      fecha_inicio: fechaInicio,
-      fecha_vencimiento: fechaVencimiento,
-      estado: 'activa',
-      pin: pin,
+      // id_cld es opcional según DTO
+      id_cld: casilleroId,
     };
 
-    //Aca deberia crear la reserva en el backend
-    this.reservas.push(nuevaReserva);
-    return of(nuevaReserva);
+    const headers = this.buildHeaders();
+
+    return this.http.post<any>(`${this.apiUrl}`, body, { headers }).pipe(
+      map((res) => (res ? this.normalizeReserva(res) : null)),
+      catchError((err) => {
+        console.error('Error al crear reserva:', err);
+        return of(null);
+      })
+    );
   }
 
-  // Cambia el estado de una reserva a 'cancelada' (liberar)
+  // Cancelar (liberar) una reserva via API
   liberarReserva(id_rsv: number): Observable<Reserva | null> {
-    const reserva = this.reservas.find((r) => r.id_rsv === id_rsv);
-    if (!reserva) {
-      return of(null);
-    }
-    reserva.estado = 'cancelada';
-    return of(reserva);
+    const headers = this.buildHeaders();
+    return this.http
+      .patch<any>(`${this.apiUrl}/${id_rsv}/cancelar`, {}, { headers })
+      .pipe(
+        map((res) => (res ? this.normalizeReserva(res) : null)),
+        catchError((err) => {
+          console.error('Error al cancelar reserva:', err);
+          return of(null);
+        })
+      );
   }
+
+  private buildHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  }
+
+  // Normaliza la respuesta del backend a la interfaz Reserva usada en el frontend
+  private normalizeReserva = (raw: any): Reserva => {
+    const reserva: Reserva = {
+      id_rsv: raw.id_rsv ?? raw.id ?? 0,
+      estado: raw.estado,
+      fecha_vencimiento: raw.fecha_vencimiento ? new Date(raw.fecha_vencimiento) : new Date(),
+      fecha_inicio: raw.fecha_inicio ? new Date(raw.fecha_inicio) : new Date(),
+      pin: raw.pin ?? 0,
+      id_usr: raw.usuario?.id_usr ?? raw.id_usr ?? (raw.id_usr ?? 0),
+      id_cld: raw.celda?.id_cld ?? raw.id_cld ?? (raw.id_cld ?? 0),
+    };
+    return reserva;
+  };
 }

@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Param, Body, Patch } from '@nestjs/common';
 import { Reserva } from './entities/reserva.entity';
 import { ReservasService } from './reservas.service';
+import { CreateReservaDto } from './dto/create-reserva.dto';
 
 
 @Controller('reservas')
@@ -9,8 +10,9 @@ export class ReservasController {
 
   // Crear reserva
   @Post()
-  createReserva(@Body() reservaData: Partial<Reserva>) {
-    return this.reservaService.createReserva(reservaData);
+  createReserva(@Body() reservaData: CreateReservaDto) {
+    // El servicio espera id_usr y opcionalmente id_cld en el body
+    return this.reservaService.createReserva(reservaData as any);
   }
 
   // Obtener todas las reservas de un usuario

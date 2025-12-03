@@ -1,42 +1,57 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { Casillero } from '../models/casillero';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CasillerosService {
-  private casilleros: Casillero[] = [
-    { id_cld: 1, columna: 1, fila: 1, estado: 'libre' },
-    { id_cld: 2, columna: 2, fila: 1, estado: 'ocupado' },
-    { id_cld: 3, columna: 3, fila: 1, estado: 'defectuoso' },
-    { id_cld: 4, columna: 4, fila: 1, estado: 'libre' },
-    { id_cld: 5, columna: 1, fila: 2, estado: 'ocupado' },
-    { id_cld: 6, columna: 2, fila: 2, estado: 'defectuoso' },
-    { id_cld: 7, columna: 3, fila: 2, estado: 'libre' },
-    { id_cld: 8, columna: 4, fila: 2, estado: 'ocupado' },
-    { id_cld: 9, columna: 1, fila: 3, estado: 'defectuoso' },
-    { id_cld: 10, columna: 2, fila: 3, estado: 'libre' },
-    { id_cld: 11, columna: 3, fila: 3, estado: 'ocupado' },
-    { id_cld: 12, columna: 4, fila: 3, estado: 'defectuoso' },
-  ];
+  private apiUrl = 'http://localhost:3000/casilleros';
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
-  // Obtener todos los casilleros
+  // Obtener todos los casilleros desde la API
   getCasilleros(): Observable<Casillero[]> {
-    return of(this.casilleros);
+    return this.http
+      .get<Casillero[]>(`${this.apiUrl}/celdas`)
+      .pipe(
+        catchError((err) => {
+          console.error('Error al obtener casilleros:', err);
+          return of([] as Casillero[]);
+        })
+      );
   }
 
-  // Actualizar el estado de un casillero
+  // Actualizar el estado de un casillero vía API (ocupar/liberar)
   actualizarEstado(
     id_cld: number,
     nuevoEstado: string
   ): Observable<Casillero | undefined> {
-    const casillero = this.casilleros.find((c) => c.id_cld === id_cld);
-    if (casillero) {
-      casillero.estado = nuevoEstado;
+    if (nuevoEstado === 'ocupado') {
+      return this.http
+        .patch<Casillero>(`${this.apiUrl}/${id_cld}/ocupar`, {})
+        .pipe(
+          catchError((err) => {
+            console.error('Error al ocupar casillero:', err);
+            return of(undefined);
+          })
+        );
     }
-    return of(casillero);
+
+    if (nuevoEstado === 'libre') {
+      return this.http
+        .patch<Casillero>(`${this.apiUrl}/${id_cld}/liberar`, {})
+        .pipe(
+          catchError((err) => {
+            console.error('Error al liberar casillero:', err);
+            return of(undefined);
+          })
+        );
+    }
+
+    // Estado no manejado: no hacemos fallback en memoria; retornamos undefined
+    console.warn('Estado no manejado en actualizarEstado:', nuevoEstado);
+    return of(undefined);
   }
 }

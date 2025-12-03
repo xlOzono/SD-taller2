@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../models/auth';
 
 export interface UserRegisterData {
@@ -24,10 +25,12 @@ export class AuthService {
   login(email: string, password: string): Observable<LoginResponse> {
     const body: LoginRequest = { email, password };
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, body).pipe(
-      (response) => {
+      tap((response: LoginResponse) => {
         // Guardar los datos del usuario después del login exitoso
-        return response;
-      }
+        if (response) {
+          this.saveUserData(response);
+        }
+      })
     );
   }
 
