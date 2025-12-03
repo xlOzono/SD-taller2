@@ -15,6 +15,7 @@ export class CasillerosComponent implements OnInit {
   casilleros: Casillero[] = [];
   usuarioId: number | null = null;
   reservaPin: number | null = null;
+  errorMessage: string | null = null;
 
   constructor(
     private casillerosService: CasillerosService,
@@ -27,8 +28,15 @@ export class CasillerosComponent implements OnInit {
     // Obtener el ID del usuario actual
     this.usuarioId = this.authService.getCurrentUserId();
     
-    this.casillerosService.getCasilleros().subscribe((data) => {
-      this.casilleros = data;
+    this.casillerosService.getCasilleros().subscribe((data: any) => {
+      if (data && data.error) {
+        this.errorMessage = data.error;
+        this.casilleros = [];
+        console.error('[CASILLEROS] Error:', data.error);
+      } else {
+        this.errorMessage = null;
+        this.casilleros = Array.isArray(data) ? data : [];
+      }
     });
   }
 

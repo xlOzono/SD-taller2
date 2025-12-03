@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Celda } from '../../casilleros/entities/celda.entity';
-import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Entity()
 export class Reserva {
@@ -20,9 +20,9 @@ export class Reserva {
   pin: number;
 
   // Relación con Usuario
-  @ManyToOne(() => Usuario, (usuario) => usuario.reservas)
+  @ManyToOne(() => User, (usuario) => usuario.reservas)
   @JoinColumn({ name: 'id_usr' })
-  usuario: Usuario;
+  usuario: User;
 
   // Relación con Celda
   @ManyToOne(() => Celda, (celda) => celda.reservas)

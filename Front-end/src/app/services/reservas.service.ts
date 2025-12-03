@@ -14,7 +14,7 @@ export class ReservasService {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   // Obtener reservas de un usuario desde el backend
-  getReservasUser(userID: number): Observable<Reserva[]> {
+  getReservasUser(userID: number): Observable<Reserva[] | { error: string }> {
     const headers = this.buildHeaders();
     return this.http
       .get<any>(`${this.apiUrl}/usuario/${userID}`, { headers })
@@ -24,7 +24,7 @@ export class ReservasService {
         )),
         catchError((err) => {
           console.error('Error al obtener reservas del usuario:', err);
-          return of([] as Reserva[]);
+          return of({ error: 'Error al cargar las reservas' } as any);
         })
       );
   }

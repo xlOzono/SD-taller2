@@ -1,0 +1,29 @@
+/* Estilos para el mensaje de error */
+.alert-danger {
+  color: #842029;
+  background-color: #f8d7da;
+  border-color: #f5c2c7;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+.alert-danger strong {
+  font-weight: 600;
+  color: #721c24;
+}
+
+/* Estilo para el enlace de reintentar */
+.error-link {
+  color: #dc3545;
+  text-decoration: underline;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.error-link:hover {
+  color: #bb2d3b;
+  text-decoration: none;
+}
+
+

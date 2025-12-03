@@ -15,6 +15,7 @@ export class ReservasComponent implements OnInit {
   loadingLiberar: { [id: number]: boolean } = {};
   reservaSeleccionada: Reserva | null = null;
   currentUserId: number = 101; // Default fallback
+  errorMessage: string | null = null;
 
   @ViewChild('confirmLiberar') confirmLiberar!: TemplateRef<any>;
 
@@ -35,11 +36,19 @@ export class ReservasComponent implements OnInit {
   reloadReservas(): void {
     console.log('[RESERVAS] Recargando reservas del usuario:', this.currentUserId);
     this.reservasService.getReservasUser(this.currentUserId).subscribe(
-      (data: Reserva[]) => {
-        this.reservas = data;
-        console.log('[RESERVAS] Reservas actualizadas:', data);
+      (data: any) => {
+        if (data && data.error) {
+          this.errorMessage = data.error;
+          this.reservas = [];
+          console.error('[RESERVAS] Error:', data.error);
+        } else {
+          this.errorMessage = null;
+          this.reservas = Array.isArray(data) ? data : [];
+          console.log('[RESERVAS] Reservas actualizadas:', data);
+        }
       },
       (error) => {
+        this.errorMessage = 'Error al cargar las reservas';
         console.error('[RESERVAS] Error al recargar reservas:', error);
       }
     );

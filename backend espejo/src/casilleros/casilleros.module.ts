@@ -4,6 +4,7 @@ import { CasillerosService } from './casilleros.service';
 import { CasillerosController } from './casilleros.controller';
 import { Casillero } from './entities/casillero.entity';
 import { Celda } from './entities/celda.entity';
+import { SeedService } from './seed.service';
 
 
 @Module({
@@ -11,7 +12,7 @@ import { Celda } from './entities/celda.entity';
     TypeOrmModule.forFeature([Casillero, Celda])  
   ],
   controllers: [CasillerosController],
-  providers: [CasillerosService],
-  exports: [CasillerosService],  // opcional
+  providers: [CasillerosService, SeedService],
+  exports: [CasillerosService, SeedService],
 })
 export class CasillerosModule {}

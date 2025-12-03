@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Celda } from 'src/casilleros/entities/celda.entity';
-import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Reserva } from './entities/reserva.entity';
 
@@ -12,8 +12,8 @@ export class ReservasService {
     private reservaRepository: Repository<Reserva>,
     @InjectRepository(Celda)
     private celdaRepository: Repository<Celda>,
-    @InjectRepository(Usuario)
-    private usuarioRepository: Repository<Usuario>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
   async createReserva(reservaData: Partial<Reserva>): Promise<Reserva> {
@@ -24,7 +24,7 @@ export class ReservasService {
     }
 
     // Buscar usuario
-    const usuario = await this.usuarioRepository.findOneBy({ id_usr });
+    const usuario = await this.userRepository.findOneBy({ id_usr });
     if (!usuario) {
       throw new BadRequestException(`Usuario con id ${id_usr} no encontrado`);
     }

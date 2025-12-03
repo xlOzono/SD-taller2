@@ -5,7 +5,7 @@ import { ReservasService } from './reservas.service';
 import { ReservasController } from './reservas.controller';
 
 import { Reserva } from './entities/reserva.entity';
-import { Usuario } from '../usuario/entities/usuario.entity';
+import { User } from '../users/entities/user.entity';
 import { Celda } from 'src/casilleros/entities/celda.entity';
 
 @Module({
@@ -13,7 +13,7 @@ import { Celda } from 'src/casilleros/entities/celda.entity';
     TypeOrmModule.forFeature([
       Reserva,   
       Celda,
-      Usuario,
+      User,
     ]),
   ],
   controllers: [ReservasController],

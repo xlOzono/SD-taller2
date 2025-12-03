@@ -12,13 +12,13 @@ export class CasillerosService {
   constructor(private http: HttpClient) {}
 
   // Obtener todos los casilleros desde la API
-  getCasilleros(): Observable<Casillero[]> {
+  getCasilleros(): Observable<Casillero[] | { error: string }> {
     return this.http
       .get<Casillero[]>(`${this.apiUrl}/celdas`)
       .pipe(
         catchError((err) => {
           console.error('Error al obtener casilleros:', err);
-          return of([] as Casillero[]);
+          return of({ error: 'Error al cargar los casilleros' } as any);
         })
       );
   }
