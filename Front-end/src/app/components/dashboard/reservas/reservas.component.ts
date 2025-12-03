@@ -73,10 +73,10 @@ export class ReservasComponent implements OnInit {
         }
       );
       
-      // ✅ Recargar la página INMEDIATAMENTE
+
       setTimeout(() => {
         window.location.reload();
-      }, 100); // Solo 100ms para que se vea instantáneo
+      }, 100);
       
       this.reservaSeleccionada = null;
     }
