@@ -75,7 +75,7 @@ export class CasillerosComponent implements OnInit {
           console.error('La reserva creada es nula o no contiene un PIN');
         }
 
-        // Abrir modal de éxito
+ 
         this.modalService.open(this.successModal, { centered: true });
       });
   }
