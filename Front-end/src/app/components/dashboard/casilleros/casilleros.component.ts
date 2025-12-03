@@ -77,12 +77,17 @@ export class CasillerosComponent implements OnInit {
 
         // Abrir modal de éxito
         this.modalService.open(this.successModal, { centered: true });
-
-        // ✅ Recargar la página después de 2 segundos
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
       });
+  }
+
+  // Cerrar modal de éxito y recargar la página para reflejar el nuevo estado
+  confirmarPin(modalRef: any) {
+    try {
+      modalRef.close();
+    } finally {
+      // Recargar la página para que se actualicen los casilleros y reservas
+      window.location.reload();
+    }
   }
 
   @ViewChild('successModal') successModal!: TemplateRef<any>;

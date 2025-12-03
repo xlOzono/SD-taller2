@@ -56,6 +56,7 @@ export class ReservasService {
     );
   }
 
+
   // Cancelar (liberar) una reserva via API
   liberarReserva(id_rsv: number): Observable<Reserva | null> {
     const headers = this.buildHeaders();
@@ -96,7 +97,7 @@ export class ReservasService {
       estado: raw.estado ?? 'activa',
       fecha_vencimiento: raw.fecha_vencimiento ? new Date(raw.fecha_vencimiento) : new Date(),
       fecha_inicio: raw.fecha_inicio ? new Date(raw.fecha_inicio) : new Date(),
-      pin: raw.pin ?? 0, // ✅ Asegurar que el PIN se capture correctamente
+      pin: raw.pin ?? 0, 
       id_usr: raw.usuario?.id_usr ?? raw.id_usr ?? 0,
       id_cld: raw.celda?.id_cld ?? raw.id_cld ?? 0,
     };

@@ -31,7 +31,7 @@ export class ReservasComponent implements OnInit {
     this.reloadReservas();
   }
 
-  // ✅ Método para recargar las reservas desde el backend
+  // Método para recargar las reservas desde el backend
   reloadReservas(): void {
     console.log('[RESERVAS] Recargando reservas del usuario:', this.currentUserId);
     this.reservasService.getReservasUser(this.currentUserId).subscribe(
@@ -63,7 +63,7 @@ export class ReservasComponent implements OnInit {
     if (this.reservaSeleccionada) {
       console.log('[RESERVAS] Confirmando liberación de reserva:', this.reservaSeleccionada.id_rsv);
       
-      // ✅ Enviar la solicitud de liberación al backend (sin esperar respuesta)
+      // Enviar la solicitud de liberación al backend (sin esperar respuesta)
       this.reservasService.liberarReserva(this.reservaSeleccionada.id_rsv).subscribe(
         () => {
           console.log('[RESERVAS] Reserva liberada en el backend');
@@ -73,10 +73,10 @@ export class ReservasComponent implements OnInit {
         }
       );
       
-      // ✅ Recargar la página INMEDIATAMENTE
+
       setTimeout(() => {
         window.location.reload();
-      }, 100); // Solo 100ms para que se vea instantáneo
+      }, 100);
       
       this.reservaSeleccionada = null;
     }

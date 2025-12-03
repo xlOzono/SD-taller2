@@ -5,8 +5,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   
-  // 🎯 El servicio Primario escucha en el puerto 3001
+  // El servicio Primario escucha en el puerto 3001
   await app.listen(3001); 
-  console.log(`Microservice PRIMARY is running on: ${await app.getUrl()}`);
+  console.log(`Microservicio PRIMARIO corriendo en: ${await app.getUrl()}`);
 }
 bootstrap();

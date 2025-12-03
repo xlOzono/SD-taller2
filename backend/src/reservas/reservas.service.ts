@@ -89,30 +89,19 @@ export class ReservasService {
     celda.estado = 'ocupado';
     await this.celdaRepository.save(celda);
 
-    // Guardar la reserva
     const savedResult = await this.reservaRepository.save(nuevaReserva);
     const saved = (Array.isArray(savedResult) ? savedResult[0] : savedResult) as Reserva;
 
-    // ✅ IMPORTANTE: Recuperar la reserva guardada CON todas sus relaciones
+    // Recuperar la reserva guardada con sus relaciones para asegurar que el pin y relations estén presentes
     const fullReserva = await this.reservaRepository.findOne({
       where: { id_rsv: saved.id_rsv },
-      relations: ['usuario', 'celda', 'celda.casillero'],
+      relations: ['usuario', 'celda'],
     });
 
-    if (!fullReserva) {
-      throw new Error('No se pudo recuperar la reserva después de guardarla');
-    }
+    // Log para depuración: mostrar el PIN generado
+    console.log('[RESERVAS] Reserva creada con PIN:', fullReserva?.pin);
 
-    // Log para depuración
-    console.log('[RESERVAS] Reserva creada:', {
-      id_rsv: fullReserva.id_rsv,
-      pin: fullReserva.pin,
-      estado: fullReserva.estado,
-      usuario: fullReserva.usuario?.id_usr,
-      celda: fullReserva.celda?.id_cld,
-    });
-
-    return fullReserva;
+    return fullReserva ?? saved;
   }
 
   // Obtener todas las reservas de un Userusuario
@@ -144,24 +133,25 @@ export class ReservasService {
 
   // Cancelar una reserva
   async cancelReserva(id_rsv: number): Promise<void> {
+    // Buscar la reserva con su celda
     const reserva = await this.reservaRepository.findOne({
       where: { id_rsv },
       relations: ['celda'],
     });
 
     if (!reserva) {
-      throw new BadRequestException(`Reserva con id ${id_rsv} no encontrada`);
-    }
-
-    // Liberar la celda
-    if (reserva.celda) {
-      reserva.celda.estado = 'disponible';
-      await this.celdaRepository.save(reserva.celda);
-      console.log(`[RESERVAS] Celda ${reserva.celda.id_cld} liberada`);
+      // No existe la reserva
+      return;
     }
 
     // Marcar la reserva como cancelada
-    await this.reservaRepository.update(id_rsv, { estado: 'cancelada' });
-    console.log(`[RESERVAS] Reserva ${id_rsv} cancelada`);
+    reserva.estado = 'cancelada';
+    await this.reservaRepository.save(reserva);
+
+    // Si la reserva tenía una celda asociada, liberarla
+    if (reserva.celda) {
+      reserva.celda.estado = 'disponible';
+      await this.celdaRepository.save(reserva.celda);
+    }
   }
 }

@@ -1,5 +1,4 @@
 import { Controller, Post, Get, Param, Body, Patch } from '@nestjs/common';
-import { Reserva } from './entities/reserva.entity';
 import { ReservasService } from './reservas.service';
 import { CreateReservaDto } from './dto/create-reserva.dto';
 
