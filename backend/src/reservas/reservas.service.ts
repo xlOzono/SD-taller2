@@ -17,14 +17,13 @@ export class ReservasService {
   ) {}
 
   async createReserva(reservaData: Partial<Reserva>): Promise<Reserva> {
-    // reservaData expected to contain id_usr and optionally id_cld
+
     const { id_usr } = reservaData as any;
 
     if (!id_usr) {
       throw new BadRequestException('Se requiere id_usr en el cuerpo de la petición');
     }
 
-    // Buscar usuario
     const usuario = await this.usuarioRepository.findOneBy({ id_usr });
     if (!usuario) {
       throw new BadRequestException(`Usuario con id ${id_usr} no encontrado`);
@@ -42,7 +41,7 @@ export class ReservasService {
         throw new BadRequestException(`La celda ${id_cld} no está disponible`);
       }
     } else {
-      // Si no se envía id_cld, buscar una celda disponible en el casillero fijo
+
       const CASILLERO_ID_FIJO = 1;
       celda = await this.celdaRepository.findOne({
         where: {
@@ -56,11 +55,9 @@ export class ReservasService {
       }
     }
 
-    // Generar fechas
     const fechaInicio = new Date();
     const fechaVencimiento = new Date(fechaInicio.getTime() + 14 * 24 * 60 * 60 * 1000);
 
-    // Generar PIN único (4 dígitos)
     let pin: number;
     const maxAttempts = 50;
     let attempts = 0;
@@ -75,7 +72,6 @@ export class ReservasService {
       throw new Error('No se pudo generar un PIN único, inténtalo de nuevo');
     }
 
-    // Construir entidad reserva
     const nuevaReserva = this.reservaRepository.create({
       estado: 'activa',
       fecha_inicio: fechaInicio,
@@ -85,15 +81,11 @@ export class ReservasService {
       celda,
     } as any);
 
-    // Marcar la celda como ocupada
     celda.estado = 'ocupado';
     await this.celdaRepository.save(celda);
 
-    // Guardar la reserva
     const savedResult = await this.reservaRepository.save(nuevaReserva);
     const saved = (Array.isArray(savedResult) ? savedResult[0] : savedResult) as Reserva;
-
-    // ✅ IMPORTANTE: Recuperar la reserva guardada CON todas sus relaciones
     const fullReserva = await this.reservaRepository.findOne({
       where: { id_rsv: saved.id_rsv },
       relations: ['usuario', 'celda', 'celda.casillero'],
@@ -103,7 +95,6 @@ export class ReservasService {
       throw new Error('No se pudo recuperar la reserva después de guardarla');
     }
 
-    // Log para depuración
     console.log('[RESERVAS] Reserva creada:', {
       id_rsv: fullReserva.id_rsv,
       pin: fullReserva.pin,
