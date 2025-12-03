@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Reserva } from '../models/reserva';
 import { Observable, of } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -40,7 +40,15 @@ export class ReservasService {
     const headers = this.buildHeaders();
 
     return this.http.post<any>(`${this.apiUrl}`, body, { headers }).pipe(
-      map((res) => (res ? this.normalizeReserva(res) : null)),
+      tap((res) => console.log('[FRONT] Respuesta de crear reserva:', res)),
+      map((res) => {
+        if (!res) {
+          console.warn('[FRONT] Respuesta vacía del backend');
+          return null;
+        }
+        console.log('[FRONT] PIN recibido:', res.pin);
+        return this.normalizeReserva(res);
+      }),
       catchError((err) => {
         console.error('Error al crear reserva:', err);
         return of(null);
@@ -54,7 +62,15 @@ export class ReservasService {
     return this.http
       .patch<any>(`${this.apiUrl}/${id_rsv}/cancelar`, {}, { headers })
       .pipe(
-        map((res) => (res ? this.normalizeReserva(res) : null)),
+        tap((res) => console.log('[FRONT] Respuesta al liberar reserva:', res)),
+        map((res) => {
+          if (!res) {
+            console.warn('[FRONT] Respuesta vacía al liberar reserva');
+            return null;
+          }
+          console.log('[FRONT] Reserva liberada exitosamente');
+          return this.normalizeReserva(res);
+        }),
         catchError((err) => {
           console.error('Error al cancelar reserva:', err);
           return of(null);
@@ -73,15 +89,19 @@ export class ReservasService {
 
   // Normaliza la respuesta del backend a la interfaz Reserva usada en el frontend
   private normalizeReserva = (raw: any): Reserva => {
+    console.log('[FRONT] Normalizando reserva raw:', raw);
+    
     const reserva: Reserva = {
       id_rsv: raw.id_rsv ?? raw.id ?? 0,
-      estado: raw.estado,
+      estado: raw.estado ?? 'activa',
       fecha_vencimiento: raw.fecha_vencimiento ? new Date(raw.fecha_vencimiento) : new Date(),
       fecha_inicio: raw.fecha_inicio ? new Date(raw.fecha_inicio) : new Date(),
-      pin: raw.pin ?? 0,
-      id_usr: raw.usuario?.id_usr ?? raw.id_usr ?? (raw.id_usr ?? 0),
-      id_cld: raw.celda?.id_cld ?? raw.id_cld ?? (raw.id_cld ?? 0),
+      pin: raw.pin ?? 0, // ✅ Asegurar que el PIN se capture correctamente
+      id_usr: raw.usuario?.id_usr ?? raw.id_usr ?? 0,
+      id_cld: raw.celda?.id_cld ?? raw.id_cld ?? 0,
     };
+    
+    console.log('[FRONT] Reserva normalizada:', reserva);
     return reserva;
   };
 }

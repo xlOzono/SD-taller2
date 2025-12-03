@@ -14,6 +14,7 @@ export class ReservasComponent implements OnInit {
   reservas: Reserva[] = [];
   loadingLiberar: { [id: number]: boolean } = {};
   reservaSeleccionada: Reserva | null = null;
+  currentUserId: number = 101; // Default fallback
 
   @ViewChild('confirmLiberar') confirmLiberar!: TemplateRef<any>;
 
@@ -26,34 +27,28 @@ export class ReservasComponent implements OnInit {
 
   ngOnInit(): void {
     // Usar el ID del usuario actual si está disponible; si no, caer a 101 como fallback
-    const userId = this.authService.getCurrentUserId() ?? 101;
-    this.reservasService.getReservasUser(userId).subscribe((data: Reserva[]) => {
-      this.reservas = data;
-    });
+    this.currentUserId = this.authService.getCurrentUserId() ?? 101;
+    this.reloadReservas();
+  }
+
+  // ✅ Método para recargar las reservas desde el backend
+  reloadReservas(): void {
+    console.log('[RESERVAS] Recargando reservas del usuario:', this.currentUserId);
+    this.reservasService.getReservasUser(this.currentUserId).subscribe(
+      (data: Reserva[]) => {
+        this.reservas = data;
+        console.log('[RESERVAS] Reservas actualizadas:', data);
+      },
+      (error) => {
+        console.error('[RESERVAS] Error al recargar reservas:', error);
+      }
+    );
   }
 
   liberarReserva(reserva: Reserva) {
     if (!reserva) return;
-    this.loadingLiberar[reserva.id_rsv] = true;
-
-    this.reservasService.liberarReserva(reserva.id_rsv).subscribe((updated) => {
-      this.loadingLiberar[reserva.id_rsv] = false;
-      if (!updated) {
-        console.error('Reserva no encontrada');
-        return;
-      }
-
-      // Actualizar estado local
-      const idx = this.reservas.findIndex((r) => r.id_rsv === reserva.id_rsv);
-      if (idx !== -1) this.reservas[idx].estado = 'cancelada';
-
-      // Poner el casillero a 'libre'
-      this.casillerosService
-        .actualizarEstado(reserva.id_cld, 'libre')
-        .subscribe(() => {
-          // opcional: notificar al usuario o refrescar UI
-        });
-    });
+    // Este método ya no se usa, la lógica está en confirmarLiberar()
+    console.log('[RESERVAS] liberarReserva() deprecated - usar confirmarLiberar() en su lugar');
   }
 
   // Abre el modal de confirmación para liberar una reserva
@@ -66,7 +61,23 @@ export class ReservasComponent implements OnInit {
   confirmarLiberar(modalRef: any) {
     modalRef.close();
     if (this.reservaSeleccionada) {
-      this.liberarReserva(this.reservaSeleccionada);
+      console.log('[RESERVAS] Confirmando liberación de reserva:', this.reservaSeleccionada.id_rsv);
+      
+      // ✅ Enviar la solicitud de liberación al backend (sin esperar respuesta)
+      this.reservasService.liberarReserva(this.reservaSeleccionada.id_rsv).subscribe(
+        () => {
+          console.log('[RESERVAS] Reserva liberada en el backend');
+        },
+        (error) => {
+          console.error('[RESERVAS] Error al liberar:', error);
+        }
+      );
+      
+      // ✅ Recargar la página INMEDIATAMENTE
+      setTimeout(() => {
+        window.location.reload();
+      }, 100); // Solo 100ms para que se vea instantáneo
+      
       this.reservaSeleccionada = null;
     }
   }

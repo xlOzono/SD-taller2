@@ -77,6 +77,11 @@ export class CasillerosComponent implements OnInit {
 
         // Abrir modal de éxito
         this.modalService.open(this.successModal, { centered: true });
+
+        // ✅ Recargar la página después de 2 segundos
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       });
   }
 

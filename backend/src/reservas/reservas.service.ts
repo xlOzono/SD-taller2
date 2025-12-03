@@ -89,19 +89,30 @@ export class ReservasService {
     celda.estado = 'ocupado';
     await this.celdaRepository.save(celda);
 
+    // Guardar la reserva
     const savedResult = await this.reservaRepository.save(nuevaReserva);
     const saved = (Array.isArray(savedResult) ? savedResult[0] : savedResult) as Reserva;
 
-    // Recuperar la reserva guardada con sus relaciones para asegurar que el pin y relations estén presentes
+    // ✅ IMPORTANTE: Recuperar la reserva guardada CON todas sus relaciones
     const fullReserva = await this.reservaRepository.findOne({
       where: { id_rsv: saved.id_rsv },
-      relations: ['usuario', 'celda'],
+      relations: ['usuario', 'celda', 'celda.casillero'],
     });
 
-    // Log para depuración: mostrar el PIN generado
-    console.log('[RESERVAS] Reserva creada con PIN:', fullReserva?.pin);
+    if (!fullReserva) {
+      throw new Error('No se pudo recuperar la reserva después de guardarla');
+    }
 
-    return fullReserva ?? saved;
+    // Log para depuración
+    console.log('[RESERVAS] Reserva creada:', {
+      id_rsv: fullReserva.id_rsv,
+      pin: fullReserva.pin,
+      estado: fullReserva.estado,
+      usuario: fullReserva.usuario?.id_usr,
+      celda: fullReserva.celda?.id_cld,
+    });
+
+    return fullReserva;
   }
 
   // Obtener todas las reservas de un Userusuario
@@ -133,6 +144,24 @@ export class ReservasService {
 
   // Cancelar una reserva
   async cancelReserva(id_rsv: number): Promise<void> {
+    const reserva = await this.reservaRepository.findOne({
+      where: { id_rsv },
+      relations: ['celda'],
+    });
+
+    if (!reserva) {
+      throw new BadRequestException(`Reserva con id ${id_rsv} no encontrada`);
+    }
+
+    // Liberar la celda
+    if (reserva.celda) {
+      reserva.celda.estado = 'disponible';
+      await this.celdaRepository.save(reserva.celda);
+      console.log(`[RESERVAS] Celda ${reserva.celda.id_cld} liberada`);
+    }
+
+    // Marcar la reserva como cancelada
     await this.reservaRepository.update(id_rsv, { estado: 'cancelada' });
+    console.log(`[RESERVAS] Reserva ${id_rsv} cancelada`);
   }
 }
